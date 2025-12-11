@@ -20,11 +20,13 @@ export function BalanceSummary({
     <div
       className={cn(
         'relative overflow-hidden rounded-3xl',
-        'bg-gradient-to-br from-emerald-500 via-emerald-600 to-teal-700',
         'p-5 text-white',
-        'shadow-[0_10px_40px_-10px_rgba(16,185,129,0.5)]',
         className
       )}
+      style={{
+        background: 'var(--primary-gradient)',
+        boxShadow: '0 10px 40px -10px var(--primary-shadow)',
+      }}
     >
       {/* Background Pattern */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
@@ -117,13 +119,17 @@ export function BalanceSummary({
             {[...Array(Math.min(membersCount, 3))].map((_, i) => (
               <div
                 key={i}
-                className="h-6 w-6 rounded-full bg-white/20 backdrop-blur-sm border-2 border-emerald-600 flex items-center justify-center"
+                className="h-6 w-6 rounded-full bg-white/20 backdrop-blur-sm border-2 flex items-center justify-center"
+                style={{ borderColor: 'var(--primary-border)' }}
               >
                 <User className="h-3 w-3" />
               </div>
             ))}
             {membersCount > 3 && (
-              <div className="h-6 w-6 rounded-full bg-white/30 backdrop-blur-sm border-2 border-emerald-600 flex items-center justify-center">
+              <div
+                className="h-6 w-6 rounded-full bg-white/30 backdrop-blur-sm border-2 flex items-center justify-center"
+                style={{ borderColor: 'var(--primary-border)' }}
+              >
                 <span className="text-[9px] font-bold">+{membersCount - 3}</span>
               </div>
             )}

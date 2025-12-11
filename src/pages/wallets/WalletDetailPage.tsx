@@ -64,7 +64,13 @@ export default function WalletDetailPage() {
 
       <div className="px-4">
         {/* Wallet Balance Card */}
-        <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-emerald-500 via-emerald-600 to-teal-700 p-5 text-white shadow-[0_10px_40px_-10px_rgba(16,185,129,0.5)] mb-6">
+        <div
+          className="relative overflow-hidden rounded-3xl p-5 text-white mb-6"
+          style={{
+            background: 'var(--primary-gradient)',
+            boxShadow: '0 10px 40px -10px var(--primary-shadow)',
+          }}
+        >
           {/* Background Pattern */}
           <div className="absolute inset-0 overflow-hidden pointer-events-none">
             <div className="absolute inset-0 bg-gradient-to-t from-black/10 to-transparent" />
