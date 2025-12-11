@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { Eye, EyeOff, Loader2, CheckCircle2 } from 'lucide-react';
+import { Eye, EyeOff, Loader2, CheckCircle2, ChevronDown } from 'lucide-react';
 import { membersApi } from '@/api/members';
 import { walletsApi } from '@/api/wallets';
 import { Header } from '@/components/layout';
@@ -10,11 +10,11 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { GlassCard, GlassCardContent, GlassCardHeader, GlassCardTitle } from '@/components/ui/glass-card';
 import { Skeleton } from '@/components/ui/skeleton';
+import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { formatCurrency, formatNumber } from '@/utils/format';
 import { cn } from '@/lib/utils';
 
 const PRESET_AMOUNTS = [10000, 25000, 50000, 100000, 200000, 500000];
-
 export default function TopupPage() {
   const { memberId } = useParams<{ memberId: string }>();
   const navigate = useNavigate();
@@ -27,39 +27,42 @@ export default function TopupPage() {
   const [notes, setNotes] = useState('');
   const [error, setError] = useState('');
   const [success, setSuccess] = useState(false);
+  const [showMemberSelector, setShowMemberSelector] = useState(false);
 
-  // Fetch member detail
-  const { data: memberData, isLoading: isMemberLoading } = useQuery({
-    queryKey: ['member', memberId],
-    queryFn: () => membersApi.get(memberId!),
-    enabled: !!memberId,
+  // Fetch all members (includes wallets and permissions)
+  const { data: membersData, isLoading: isMembersLoading } = useQuery({
+    queryKey: ['members'],
+    queryFn: () => membersApi.list(),
   });
 
-  // Fetch wallets
-  const { data: walletsData, isLoading: isWalletsLoading } = useQuery({
-    queryKey: ['wallets', memberId],
-    queryFn: () => walletsApi.getWallets(memberId!),
-    enabled: !!memberId,
-  });
+  // Filter members that can be topped up
+  const allMembers = membersData?.data?.members || [];
+  const topupableMembers = allMembers.filter((m) => m.permissions?.can_topup);
 
-  const member = memberData?.data;
-  const wallets = walletsData?.data?.wallets || [];
+  // Get current member from list
+  const member = topupableMembers.find((m) => m.id === memberId);
+  const wallets = member?.wallets?.filter((w) => w.is_active) || [];
 
-  // Set default wallet on load
-  if (wallets.length > 0 && !selectedWalletId) {
-    const mainWallet = wallets.find((w) => w.wallet_type === 'main' && w.is_active && !w.is_frozen);
-    if (mainWallet) {
-      setSelectedWalletId(mainWallet.id);
-    } else {
-      const activeWallet = wallets.find((w) => w.is_active && !w.is_frozen);
-      if (activeWallet) setSelectedWalletId(activeWallet.id);
-    }
-  }
+  // Get effective wallet ID (use selected or fallback to default)
+  const defaultWalletId = wallets.length > 0
+    ? (wallets.find((w) => w.wallet_type === 'main')?.id || wallets[0].id)
+    : '';
+  const effectiveWalletId = selectedWalletId || defaultWalletId;
+
+  // Handle member change
+  const handleMemberChange = (newMemberId: string) => {
+    setShowMemberSelector(false);
+    setSelectedWalletId('');
+    setAmount('');
+    setPassword('');
+    setError('');
+    navigate(`/members/${newMemberId}/topup`, { replace: true });
+  };
 
   // Topup mutation
   const topupMutation = useMutation({
     mutationFn: (data: { amount: number; password: string; notes?: string }) =>
-      walletsApi.topup(memberId!, selectedWalletId, data),
+      walletsApi.topup(memberId!, effectiveWalletId, data),
     onSuccess: () => {
       setSuccess(true);
       queryClient.invalidateQueries({ queryKey: ['wallets', memberId] });
@@ -106,7 +109,7 @@ export default function TopupPage() {
     });
   };
 
-  const selectedWallet = wallets.find((w) => w.id === selectedWalletId);
+  const selectedWallet = wallets.find((w) => w.id === effectiveWalletId);
 
   if (success) {
     return (
@@ -122,7 +125,7 @@ export default function TopupPage() {
               {formatCurrency(parseInt(amount, 10))} telah ditambahkan ke dompet {member?.name}
             </p>
             <p className="text-sm text-muted-foreground mb-6">
-              Saldo baru: {formatCurrency(parseFloat(selectedWallet?.balance || '0') + parseInt(amount, 10))}
+              Saldo baru: {formatCurrency(Number(selectedWallet?.balance || 0) + parseInt(amount, 10))}
             </p>
             <div className="flex gap-3">
               <Button variant="outline" onClick={() => navigate(-1)}>
@@ -143,40 +146,95 @@ export default function TopupPage() {
       <Header showBack title="Top Up" />
 
       <div className="px-4">
-        {/* Member info */}
-        {isMemberLoading ? (
-          <Skeleton className="h-16 w-full rounded-xl mb-6" />
-        ) : member && (
-          <div className="bg-card rounded-xl border border-border/50 p-4 mb-6">
-            <p className="text-sm text-muted-foreground">Top up untuk</p>
-            <p className="font-semibold">{member.name}</p>
+        {/* Member selector */}
+        {isMembersLoading ? (
+          <Skeleton className="h-20 w-full rounded-xl mb-6" />
+        ) : (
+          <div className="relative mb-6">
+            <button
+              type="button"
+              onClick={() => setShowMemberSelector(!showMemberSelector)}
+              className="w-full bg-card rounded-xl border border-border/50 p-4 text-left flex items-center gap-3 hover:border-primary/50 transition-colors"
+            >
+              {member ? (
+                <>
+                  <Avatar className="h-10 w-10">
+                    <AvatarFallback className="bg-primary/10 text-primary text-sm font-semibold">
+                      {member.name.split(' ').map((n) => n[0]).join('').slice(0, 2).toUpperCase()}
+                    </AvatarFallback>
+                  </Avatar>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-xs text-muted-foreground">Top up untuk</p>
+                    <p className="font-semibold truncate">{member.name}</p>
+                    <p className="text-xs text-muted-foreground">{member.organization?.name}</p>
+                  </div>
+                </>
+              ) : (
+                <div className="flex-1">
+                  <p className="text-sm text-muted-foreground">Pilih anak untuk top up</p>
+                </div>
+              )}
+              <ChevronDown className={cn(
+                "h-5 w-5 text-muted-foreground transition-transform",
+                showMemberSelector && "rotate-180"
+              )} />
+            </button>
+
+            {/* Member dropdown */}
+            {showMemberSelector && topupableMembers.length > 0 && (
+              <div className="absolute top-full left-0 right-0 mt-2 bg-card rounded-xl border border-border/50 shadow-lg z-50 overflow-hidden">
+                {topupableMembers.map((m) => (
+                  <button
+                    key={m.id}
+                    type="button"
+                    onClick={() => handleMemberChange(m.id)}
+                    className={cn(
+                      "w-full p-3 flex items-center gap-3 hover:bg-accent/50 transition-colors text-left",
+                      m.id === memberId && "bg-primary/5"
+                    )}
+                  >
+                    <Avatar className="h-9 w-9">
+                      <AvatarFallback className="bg-primary/10 text-primary text-xs font-semibold">
+                        {m.name.split(' ').map((n) => n[0]).join('').slice(0, 2).toUpperCase()}
+                      </AvatarFallback>
+                    </Avatar>
+                    <div className="flex-1 min-w-0">
+                      <p className="font-medium text-sm truncate">{m.name}</p>
+                      <p className="text-xs text-muted-foreground">{m.organization?.name}</p>
+                    </div>
+                    {m.id === memberId && (
+                      <div className="h-2 w-2 rounded-full bg-primary" />
+                    )}
+                  </button>
+                ))}
+              </div>
+            )}
           </div>
         )}
 
         {/* Wallet selector */}
-        {isWalletsLoading ? (
-          <Skeleton className="h-20 w-full rounded-xl mb-6" />
-        ) : wallets.length > 1 && (
+        {wallets.length > 1 && (
           <div className="mb-6">
             <Label className="mb-2 block">Pilih Dompet</Label>
             <div className="grid grid-cols-2 gap-2">
-              {wallets
-                .filter((w) => w.is_active && !w.is_frozen)
-                .map((wallet) => (
-                  <button
-                    key={wallet.id}
-                    onClick={() => setSelectedWalletId(wallet.id)}
-                    className={cn(
-                      'p-3 rounded-xl border text-left transition-all',
-                      selectedWalletId === wallet.id
-                        ? 'border-primary bg-primary/5'
-                        : 'border-border/50 hover:border-border'
-                    )}
-                  >
-                    <p className="text-sm font-medium">{wallet.wallet_type_label}</p>
-                    <p className="text-xs text-muted-foreground">{formatCurrency(wallet.balance)}</p>
-                  </button>
-                ))}
+              {wallets.map((wallet) => (
+                <button
+                  key={wallet.id}
+                  type="button"
+                  onClick={() => setSelectedWalletId(wallet.id)}
+                  className={cn(
+                    'p-3 rounded-xl border text-left transition-all',
+                    effectiveWalletId === wallet.id
+                      ? 'border-primary bg-primary/5'
+                      : 'border-border/50 hover:border-border'
+                  )}
+                >
+                  <p className="text-sm font-medium capitalize">
+                    {wallet.wallet_type_label || wallet.wallet_type.replace('_', ' ')}
+                  </p>
+                  <p className="text-xs text-muted-foreground">{formatCurrency(wallet.balance)}</p>
+                </button>
+              ))}
             </div>
           </div>
         )}
