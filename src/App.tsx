@@ -1,5 +1,8 @@
+import { RouterProvider } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { AuthProvider } from './contexts/AuthContext';
+import { AuthProvider } from '@/contexts/AuthContext';
+import { ThemeProvider } from '@/contexts/ThemeContext';
+import { router } from '@/router';
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -14,12 +17,11 @@ const queryClient = new QueryClient({
 function App() {
   return (
     <QueryClientProvider client={queryClient}>
-      <AuthProvider>
-        <div className="p-4">
-          <h1 className="text-xl font-bold">Tapzy Mobile</h1>
-          <p className="text-gray-500 mt-2">Backend connected. Build your UI here.</p>
-        </div>
-      </AuthProvider>
+      <ThemeProvider>
+        <AuthProvider>
+          <RouterProvider router={router} />
+        </AuthProvider>
+      </ThemeProvider>
     </QueryClientProvider>
   );
 }
