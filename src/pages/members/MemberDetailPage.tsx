@@ -8,8 +8,8 @@ import { Header } from '@/components/layout';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
-import { Skeleton } from '@/components/ui/skeleton';
 import { WalletCard, TransactionItem, TransactionDetailSheet } from '@/components/features';
+import { MemberDetailPageSkeleton, WalletCardSkeleton, TransactionItemSkeleton } from '@/components/skeletons';
 import { formatDate } from '@/utils/format';
 import type { Transaction } from '@/types/api';
 
@@ -54,11 +54,7 @@ export default function MemberDetailPage() {
     return (
       <div className="min-h-screen">
         <Header showBack title="Detail Anak" />
-        <div className="p-4 space-y-4">
-          <Skeleton className="h-24 w-full rounded-xl" />
-          <Skeleton className="h-20 w-full rounded-xl" />
-          <Skeleton className="h-20 w-full rounded-xl" />
-        </div>
+        <MemberDetailPageSkeleton />
       </div>
     );
   }
@@ -154,7 +150,7 @@ export default function MemberDetailPage() {
           {isWalletsLoading ? (
             <div className="space-y-3">
               {[1, 2].map((i) => (
-                <Skeleton key={i} className="h-16 w-full rounded-xl" />
+                <WalletCardSkeleton key={i} />
               ))}
             </div>
           ) : wallets.length === 0 ? (
@@ -187,9 +183,9 @@ export default function MemberDetailPage() {
             </Link>
           </div>
           {isTransactionsLoading ? (
-            <div className="space-y-3">
+            <div className="bg-card rounded-xl border border-border/50 divide-y divide-border/50">
               {[1, 2, 3].map((i) => (
-                <Skeleton key={i} className="h-14 w-full rounded-xl" />
+                <TransactionItemSkeleton key={i} />
               ))}
             </div>
           ) : transactions.length === 0 ? (

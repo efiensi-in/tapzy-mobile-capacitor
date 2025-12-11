@@ -17,9 +17,9 @@ import { Header } from '@/components/layout';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Skeleton } from '@/components/ui/skeleton';
 import { EmptyState } from '@/components/ui/empty-state';
 import { Badge } from '@/components/ui/badge';
+import { SpendingLimitsPageSkeleton } from '@/components/skeletons';
 import {
   Dialog,
   DialogContent,
@@ -230,11 +230,7 @@ export default function SpendingLimitsPage() {
 
       <div className="px-4">
         {isLoading ? (
-          <div className="space-y-3">
-            {[1, 2].map((i) => (
-              <Skeleton key={i} className="h-24 w-full rounded-xl" />
-            ))}
-          </div>
+          <SpendingLimitsPageSkeleton />
         ) : limits.length === 0 ? (
           <EmptyState
             icon={TrendingDown}

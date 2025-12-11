@@ -6,9 +6,9 @@ import { membersApi } from '@/api/members';
 import { walletsApi } from '@/api/wallets';
 import { Header } from '@/components/layout';
 import { Button } from '@/components/ui/button';
-import { Skeleton } from '@/components/ui/skeleton';
 import { EmptyState } from '@/components/ui/empty-state';
 import { BalanceSummary, MemberCard, TransactionItem } from '@/components/features';
+import { HomePageSkeleton, MemberCardSkeleton, TransactionItemSkeleton } from '@/components/skeletons';
 import type { Transaction } from '@/types/api';
 
 export default function HomePage() {
@@ -50,6 +50,16 @@ export default function HomePage() {
     return 'Selamat Malam';
   };
 
+  // Show full skeleton when loading
+  if (isMembersLoading) {
+    return (
+      <div className="min-h-screen">
+        <Header showNotification showSettings transparent />
+        <HomePageSkeleton />
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen">
       {/* Header */}
@@ -63,15 +73,11 @@ export default function HomePage() {
         </div>
 
         {/* Balance Summary */}
-        {isMembersLoading ? (
-          <Skeleton className="h-36 w-full rounded-2xl mb-6" />
-        ) : (
-          <BalanceSummary
-            totalBalance={totalBalance}
-            membersCount={members.length}
-            className="mb-6"
-          />
-        )}
+        <BalanceSummary
+          totalBalance={totalBalance}
+          membersCount={members.length}
+          className="mb-6"
+        />
 
         {/* Quick Actions */}
         <div className="flex gap-3 mb-6">
@@ -115,13 +121,7 @@ export default function HomePage() {
             ) : null}
           </div>
 
-          {isMembersLoading ? (
-            <div className="space-y-3">
-              {[1, 2].map((i) => (
-                <Skeleton key={i} className="h-20 w-full rounded-xl" />
-              ))}
-            </div>
-          ) : members.length === 0 ? (
+          {members.length === 0 ? (
             <EmptyState
               icon={Users}
               title="Belum ada anak terdaftar"
@@ -156,9 +156,9 @@ export default function HomePage() {
           </div>
 
           {isDepositsLoading ? (
-            <div className="space-y-3">
+            <div className="bg-card rounded-xl border border-border/50 divide-y divide-border/50">
               {[1, 2, 3].map((i) => (
-                <Skeleton key={i} className="h-16 w-full rounded-xl" />
+                <TransactionItemSkeleton key={i} />
               ))}
             </div>
           ) : deposits.length === 0 ? (

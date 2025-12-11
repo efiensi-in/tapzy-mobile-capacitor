@@ -9,7 +9,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { GlassCard, GlassCardContent, GlassCardHeader, GlassCardTitle } from '@/components/ui/glass-card';
-import { Skeleton } from '@/components/ui/skeleton';
+import { TopupPageSkeleton } from '@/components/skeletons';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { formatCurrency, formatNumber } from '@/utils/format';
 import { cn } from '@/lib/utils';
@@ -141,76 +141,81 @@ export default function TopupPage() {
     );
   }
 
+  if (isMembersLoading) {
+    return (
+      <div className="min-h-screen pb-6">
+        <Header showBack title="Top Up" />
+        <TopupPageSkeleton />
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen pb-6">
       <Header showBack title="Top Up" />
 
       <div className="px-4">
         {/* Member selector */}
-        {isMembersLoading ? (
-          <Skeleton className="h-20 w-full rounded-xl mb-6" />
-        ) : (
-          <div className="relative mb-6">
-            <button
-              type="button"
-              onClick={() => setShowMemberSelector(!showMemberSelector)}
-              className="w-full bg-card rounded-xl border border-border/50 p-4 text-left flex items-center gap-3 hover:border-primary/50 transition-colors"
-            >
-              {member ? (
-                <>
-                  <Avatar className="h-10 w-10">
-                    <AvatarFallback className="bg-primary/10 text-primary text-sm font-semibold">
-                      {member.name.split(' ').map((n) => n[0]).join('').slice(0, 2).toUpperCase()}
+        <div className="relative mb-6">
+          <button
+            type="button"
+            onClick={() => setShowMemberSelector(!showMemberSelector)}
+            className="w-full bg-card rounded-xl border border-border/50 p-4 text-left flex items-center gap-3 hover:border-primary/50 transition-colors"
+          >
+            {member ? (
+              <>
+                <Avatar className="h-10 w-10">
+                  <AvatarFallback className="bg-primary/10 text-primary text-sm font-semibold">
+                    {member.name.split(' ').map((n) => n[0]).join('').slice(0, 2).toUpperCase()}
+                  </AvatarFallback>
+                </Avatar>
+                <div className="flex-1 min-w-0">
+                  <p className="text-xs text-muted-foreground">Top up untuk</p>
+                  <p className="font-semibold truncate">{member.name}</p>
+                  <p className="text-xs text-muted-foreground">{member.organization?.name}</p>
+                </div>
+              </>
+            ) : (
+              <div className="flex-1">
+                <p className="text-sm text-muted-foreground">Pilih anak untuk top up</p>
+              </div>
+            )}
+            <ChevronDown className={cn(
+              "h-5 w-5 text-muted-foreground transition-transform",
+              showMemberSelector && "rotate-180"
+            )} />
+          </button>
+
+          {/* Member dropdown */}
+          {showMemberSelector && topupableMembers.length > 0 && (
+            <div className="absolute top-full left-0 right-0 mt-2 bg-card rounded-xl border border-border/50 shadow-lg z-50 overflow-hidden">
+              {topupableMembers.map((m) => (
+                <button
+                  key={m.id}
+                  type="button"
+                  onClick={() => handleMemberChange(m.id)}
+                  className={cn(
+                    "w-full p-3 flex items-center gap-3 hover:bg-accent/50 transition-colors text-left",
+                    m.id === memberId && "bg-primary/5"
+                  )}
+                >
+                  <Avatar className="h-9 w-9">
+                    <AvatarFallback className="bg-primary/10 text-primary text-xs font-semibold">
+                      {m.name.split(' ').map((n) => n[0]).join('').slice(0, 2).toUpperCase()}
                     </AvatarFallback>
                   </Avatar>
                   <div className="flex-1 min-w-0">
-                    <p className="text-xs text-muted-foreground">Top up untuk</p>
-                    <p className="font-semibold truncate">{member.name}</p>
-                    <p className="text-xs text-muted-foreground">{member.organization?.name}</p>
+                    <p className="font-medium text-sm truncate">{m.name}</p>
+                    <p className="text-xs text-muted-foreground">{m.organization?.name}</p>
                   </div>
-                </>
-              ) : (
-                <div className="flex-1">
-                  <p className="text-sm text-muted-foreground">Pilih anak untuk top up</p>
-                </div>
-              )}
-              <ChevronDown className={cn(
-                "h-5 w-5 text-muted-foreground transition-transform",
-                showMemberSelector && "rotate-180"
-              )} />
-            </button>
-
-            {/* Member dropdown */}
-            {showMemberSelector && topupableMembers.length > 0 && (
-              <div className="absolute top-full left-0 right-0 mt-2 bg-card rounded-xl border border-border/50 shadow-lg z-50 overflow-hidden">
-                {topupableMembers.map((m) => (
-                  <button
-                    key={m.id}
-                    type="button"
-                    onClick={() => handleMemberChange(m.id)}
-                    className={cn(
-                      "w-full p-3 flex items-center gap-3 hover:bg-accent/50 transition-colors text-left",
-                      m.id === memberId && "bg-primary/5"
-                    )}
-                  >
-                    <Avatar className="h-9 w-9">
-                      <AvatarFallback className="bg-primary/10 text-primary text-xs font-semibold">
-                        {m.name.split(' ').map((n) => n[0]).join('').slice(0, 2).toUpperCase()}
-                      </AvatarFallback>
-                    </Avatar>
-                    <div className="flex-1 min-w-0">
-                      <p className="font-medium text-sm truncate">{m.name}</p>
-                      <p className="text-xs text-muted-foreground">{m.organization?.name}</p>
-                    </div>
-                    {m.id === memberId && (
-                      <div className="h-2 w-2 rounded-full bg-primary" />
-                    )}
-                  </button>
-                ))}
-              </div>
-            )}
-          </div>
-        )}
+                  {m.id === memberId && (
+                    <div className="h-2 w-2 rounded-full bg-primary" />
+                  )}
+                </button>
+              ))}
+            </div>
+          )}
+        </div>
 
         {/* Wallet selector */}
         {wallets.length > 1 && (

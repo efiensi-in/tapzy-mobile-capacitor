@@ -3,9 +3,9 @@ import { Loader2, History } from 'lucide-react';
 import { walletsApi } from '@/api/wallets';
 import { Header } from '@/components/layout';
 import { Button } from '@/components/ui/button';
-import { Skeleton } from '@/components/ui/skeleton';
 import { EmptyState } from '@/components/ui/empty-state';
 import { TransactionItem } from '@/components/features';
+import { TransactionListSkeleton } from '@/components/skeletons';
 import type { Transaction } from '@/types/api';
 
 export default function DepositsPage() {
@@ -41,11 +41,7 @@ export default function DepositsPage() {
 
       <div className="px-4">
         {isLoading ? (
-          <div className="space-y-3">
-            {[1, 2, 3, 4, 5].map((i) => (
-              <Skeleton key={i} className="h-16 w-full rounded-xl" />
-            ))}
-          </div>
+          <TransactionListSkeleton count={5} />
         ) : allDeposits.length === 0 ? (
           <EmptyState
             icon={History}

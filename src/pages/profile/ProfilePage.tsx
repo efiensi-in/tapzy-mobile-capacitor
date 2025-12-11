@@ -15,10 +15,11 @@ import { Header } from '@/components/layout';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
+import { ProfilePageSkeleton } from '@/components/skeletons';
 import { cn } from '@/lib/utils';
 
 export default function ProfilePage() {
-  const { user, guardian, logout } = useAuth();
+  const { user, guardian, logout, isLoading } = useAuth();
 
   // Get initials from name
   const initials = user?.name
@@ -59,6 +60,15 @@ export default function ProfilePage() {
       disabled: true,
     },
   ];
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen pb-6">
+        <Header title="Profil" showSettings />
+        <ProfilePageSkeleton />
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen pb-6">

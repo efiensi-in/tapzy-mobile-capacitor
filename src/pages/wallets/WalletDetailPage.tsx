@@ -5,8 +5,8 @@ import { walletsApi } from '@/api/wallets';
 import { Header } from '@/components/layout';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Skeleton } from '@/components/ui/skeleton';
 import { TransactionItem } from '@/components/features';
+import { WalletDetailPageSkeleton, TransactionItemSkeleton } from '@/components/skeletons';
 import { formatCurrency } from '@/utils/format';
 
 export default function WalletDetailPage() {
@@ -41,10 +41,7 @@ export default function WalletDetailPage() {
     return (
       <div className="min-h-screen">
         <Header showBack title="Detail Dompet" />
-        <div className="p-4 space-y-4">
-          <Skeleton className="h-40 w-full rounded-2xl" />
-          <Skeleton className="h-20 w-full rounded-xl" />
-        </div>
+        <WalletDetailPageSkeleton />
       </div>
     );
   }
@@ -153,9 +150,9 @@ export default function WalletDetailPage() {
         <div>
           <h3 className="font-semibold mb-3">Riwayat Transaksi</h3>
           {isTransactionsLoading ? (
-            <div className="space-y-3">
+            <div className="bg-card rounded-xl border border-border/50 divide-y divide-border/50">
               {[1, 2, 3].map((i) => (
-                <Skeleton key={i} className="h-14 w-full rounded-xl" />
+                <TransactionItemSkeleton key={i} />
               ))}
             </div>
           ) : transactions.length === 0 ? (
