@@ -17,7 +17,7 @@ export function AppLayout({ showBottomNav = true, className }: AppLayoutProps) {
       <main
         className={cn(
           'flex-1',
-          showBottomNav && 'pb-24' // Space for bottom nav
+          showBottomNav && 'pb-20' // Space for bottom nav
         )}
       >
         <Outlet />

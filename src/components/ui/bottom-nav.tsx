@@ -16,33 +16,29 @@ const navItems: NavItem[] = [
 
 export function BottomNav() {
   return (
-    <nav className="fixed bottom-0 left-0 right-0 z-50 pb-[max(env(safe-area-inset-bottom),16px)]">
-      <div className="glass-strong mx-4 rounded-2xl">
-        <div className="flex items-center justify-around py-2">
+    <nav className="fixed bottom-0 left-0 right-0 z-50 pb-[max(env(safe-area-inset-bottom),8px)]">
+      <div className="bg-card/95 backdrop-blur-sm mx-4 rounded-full border border-border">
+        <div className="flex items-center justify-around py-2 px-2">
           {navItems.map((item) => (
             <NavLink
               key={item.to}
               to={item.to}
               className={({ isActive }) =>
                 cn(
-                  'flex flex-col items-center gap-1 px-4 py-2 rounded-xl transition-all duration-200',
-                  'min-w-[72px]',
+                  'flex items-center justify-center p-3 rounded-full transition-all duration-200',
                   isActive
-                    ? 'text-primary bg-primary/10'
+                    ? 'text-primary bg-primary/15'
                     : 'text-muted-foreground hover:text-foreground'
                 )
               }
             >
               {({ isActive }) => (
-                <>
-                  <item.icon
-                    className={cn(
-                      'h-5 w-5 transition-transform duration-200',
-                      isActive && 'scale-110'
-                    )}
-                  />
-                  <span className="text-xs font-medium">{item.label}</span>
-                </>
+                <item.icon
+                  className={cn(
+                    'h-5 w-5 transition-transform duration-200',
+                    isActive && 'scale-110'
+                  )}
+                />
               )}
             </NavLink>
           ))}
