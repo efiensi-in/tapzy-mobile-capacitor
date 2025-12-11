@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback, type ReactNode } from 'react';
 import { authApi } from '../api/auth';
+import { guardianApi } from '../api/guardian';
 import { storage } from '../utils/storage';
 import { AuthContext, type AuthState } from './auth-context-value';
 
@@ -17,9 +18,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       try {
         const token = await storage.getToken();
         if (token) {
-          const response = await authApi.me();
+          // Use guardian/profile endpoint to get complete data
+          const response = await guardianApi.profile();
           setState({
-            user: response.data,
+            user: response.data.user,
             guardian: response.data.guardian,
             isAuthenticated: true,
             isLoading: false,
@@ -100,10 +102,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const refreshUser = useCallback(async () => {
     try {
-      const response = await authApi.me();
+      const response = await guardianApi.profile();
       setState((prev) => ({
         ...prev,
-        user: response.data,
+        user: response.data.user,
         guardian: response.data.guardian,
       }));
     } catch {
