@@ -7,6 +7,7 @@ import type {
   TransactionsResponse,
   DepositsResponse,
   SpendingLimit,
+  SpendingLimitsResponse,
   CreateSpendingLimitRequest,
   UpdateSpendingLimitRequest,
 } from '../types/api';
@@ -52,14 +53,14 @@ export const walletsApi = {
 
   // Spending limits
   getSpendingLimits: async (memberId: string) => {
-    const response = await apiClient.get<ApiResponse<SpendingLimit[]>>(
+    const response = await apiClient.get<ApiResponse<SpendingLimitsResponse>>(
       `/guardian/members/${memberId}/spending-limits`
     );
     return response.data;
   },
 
   createSpendingLimit: async (memberId: string, data: CreateSpendingLimitRequest) => {
-    const response = await apiClient.post<ApiResponse<SpendingLimit>>(
+    const response = await apiClient.post<ApiResponse<{ spending_limit: SpendingLimit }>>(
       `/guardian/members/${memberId}/spending-limits`,
       data
     );
@@ -71,7 +72,7 @@ export const walletsApi = {
     limitId: string,
     data: UpdateSpendingLimitRequest
   ) => {
-    const response = await apiClient.put<ApiResponse<SpendingLimit>>(
+    const response = await apiClient.put<ApiResponse<{ spending_limit: SpendingLimit }>>(
       `/guardian/members/${memberId}/spending-limits/${limitId}`,
       data
     );

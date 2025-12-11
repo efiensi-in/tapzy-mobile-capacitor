@@ -119,7 +119,37 @@ export interface ClaimMemberRequest {
 }
 
 // Wallet Types
+export interface SpendingLimitWallet {
+  id: string;
+  wallet_type: string;
+  wallet_type_label: string;
+  wallet_name: string;
+}
+
 export interface SpendingLimit {
+  id: string;
+  wallet_id: string;
+  wallet: SpendingLimitWallet;
+  set_by_type: string;
+  limit_name: string;
+  daily_limit: string;
+  per_transaction_limit: string;
+  allowed_start_time: string | null;
+  allowed_end_time: string | null;
+  effective_from: string | null;
+  effective_until: string | null;
+  apply_on: 'all_days' | 'weekdays' | 'weekends' | 'specific_dates';
+  specific_dates: string[] | null;
+  priority: number;
+  allowed_categories: string[] | null;
+  blocked_categories: string[] | null;
+  is_active: boolean;
+  created_at: string;
+  updated_at: string;
+}
+
+// Simple spending limit for wallet list response (backward compat)
+export interface SimpleSpendingLimit {
   id: string;
   limit_type: 'daily' | 'weekly' | 'monthly' | 'per_transaction';
   amount: string;
@@ -212,14 +242,41 @@ export interface DepositsResponse {
 }
 
 // Spending Limit Types
+export interface SpendingLimitsResponse {
+  member: Pick<Member, 'id' | 'name' | 'member_number'>;
+  spending_limits: SpendingLimit[];
+  count: number;
+}
+
 export interface CreateSpendingLimitRequest {
   wallet_id: string;
-  limit_type: 'daily' | 'weekly' | 'monthly' | 'per_transaction';
-  amount: number;
-  is_active: boolean;
+  limit_name?: string;
+  daily_limit?: number;
+  per_transaction_limit?: number;
+  allowed_start_time?: string;
+  allowed_end_time?: string;
+  effective_from?: string;
+  effective_until?: string;
+  apply_on?: 'all_days' | 'weekdays' | 'weekends' | 'specific_dates';
+  specific_dates?: string[];
+  priority?: number;
+  allowed_categories?: string[];
+  blocked_categories?: string[];
+  is_active?: boolean;
 }
 
 export interface UpdateSpendingLimitRequest {
-  amount?: number;
+  limit_name?: string;
+  daily_limit?: number;
+  per_transaction_limit?: number;
+  allowed_start_time?: string;
+  allowed_end_time?: string;
+  effective_from?: string;
+  effective_until?: string;
+  apply_on?: 'all_days' | 'weekdays' | 'weekends' | 'specific_dates';
+  specific_dates?: string[];
+  priority?: number;
+  allowed_categories?: string[];
+  blocked_categories?: string[];
   is_active?: boolean;
 }

@@ -1,5 +1,7 @@
-export function formatCurrency(amount: string | number): string {
+export function formatCurrency(amount: string | number | null | undefined): string {
+  if (amount === null || amount === undefined) return 'Rp 0';
   const num = typeof amount === 'string' ? parseFloat(amount) : amount;
+  if (isNaN(num)) return 'Rp 0';
   return new Intl.NumberFormat('id-ID', {
     style: 'currency',
     currency: 'IDR',
@@ -8,13 +10,17 @@ export function formatCurrency(amount: string | number): string {
   }).format(num);
 }
 
-export function formatNumber(amount: string | number): string {
+export function formatNumber(amount: string | number | null | undefined): string {
+  if (amount === null || amount === undefined) return '0';
   const num = typeof amount === 'string' ? parseFloat(amount) : amount;
+  if (isNaN(num)) return '0';
   return new Intl.NumberFormat('id-ID').format(num);
 }
 
-export function formatDate(date: string | Date): string {
+export function formatDate(date: string | Date | null | undefined): string {
+  if (!date) return '-';
   const d = typeof date === 'string' ? new Date(date) : date;
+  if (isNaN(d.getTime())) return '-';
   return new Intl.DateTimeFormat('id-ID', {
     day: 'numeric',
     month: 'short',
@@ -22,8 +28,10 @@ export function formatDate(date: string | Date): string {
   }).format(d);
 }
 
-export function formatDateTime(date: string | Date): string {
+export function formatDateTime(date: string | Date | null | undefined): string {
+  if (!date) return '-';
   const d = typeof date === 'string' ? new Date(date) : date;
+  if (isNaN(d.getTime())) return '-';
   return new Intl.DateTimeFormat('id-ID', {
     day: 'numeric',
     month: 'short',
@@ -33,8 +41,10 @@ export function formatDateTime(date: string | Date): string {
   }).format(d);
 }
 
-export function formatRelativeTime(date: string | Date): string {
+export function formatRelativeTime(date: string | Date | null | undefined): string {
+  if (!date) return '-';
   const d = typeof date === 'string' ? new Date(date) : date;
+  if (isNaN(d.getTime())) return '-';
   const now = new Date();
   const diffMs = now.getTime() - d.getTime();
   const diffMins = Math.floor(diffMs / 60000);
