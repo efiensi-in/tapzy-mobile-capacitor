@@ -294,15 +294,10 @@
   }
 
   .glass-primary {
-    background: oklch(0.596 0.145 163.225 / 70%);
+    background: oklch(from var(--primary) l c h / 70%);
     backdrop-filter: blur(16px);
     -webkit-backdrop-filter: blur(16px);
-    border: 1px solid oklch(0.596 0.145 163.225 / 50%);
-  }
-
-  .dark .glass-primary {
-    background: oklch(0.696 0.17 162.48 / 70%);
-    border: 1px solid oklch(0.696 0.17 162.48 / 50%);
+    border: 1px solid oklch(from var(--primary) l c h / 50%);
   }
 }
 
