@@ -254,6 +254,19 @@
     padding-left: env(safe-area-inset-left);
     padding-right: env(safe-area-inset-right);
   }
+
+  /* Margin variants for safe area */
+  .safe-top-margin {
+    margin-top: env(safe-area-inset-top);
+  }
+  .safe-bottom-margin {
+    margin-bottom: env(safe-area-inset-bottom);
+  }
+
+  /* Min-height untuk safe bottom (useful for bottom nav) */
+  .min-safe-bottom {
+    min-height: env(safe-area-inset-bottom, 0px);
+  }
 }
 
 /* Smooth transitions */

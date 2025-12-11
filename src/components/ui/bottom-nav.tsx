@@ -16,8 +16,8 @@ const navItems: NavItem[] = [
 
 export function BottomNav() {
   return (
-    <nav className="fixed bottom-0 left-0 right-0 z-50 safe-bottom">
-      <div className="glass-strong mx-4 mb-4 rounded-2xl">
+    <nav className="fixed bottom-0 left-0 right-0 z-50 pb-[max(env(safe-area-inset-bottom),16px)]">
+      <div className="glass-strong mx-4 rounded-2xl">
         <div className="flex items-center justify-around py-2">
           {navItems.map((item) => (
             <NavLink
