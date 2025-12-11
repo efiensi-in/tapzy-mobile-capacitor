@@ -12,6 +12,19 @@ export const apiClient = axios.create({
   timeout: 30000,
 });
 
+// Track refresh state to prevent multiple refresh calls
+let isRefreshing = false;
+let refreshSubscribers: ((token: string) => void)[] = [];
+
+const subscribeTokenRefresh = (callback: (token: string) => void) => {
+  refreshSubscribers.push(callback);
+};
+
+const onTokenRefreshed = (token: string) => {
+  refreshSubscribers.forEach((callback) => callback(token));
+  refreshSubscribers = [];
+};
+
 // Request interceptor - add auth token
 apiClient.interceptors.request.use(
   async (config: InternalAxiosRequestConfig) => {
@@ -24,14 +37,39 @@ apiClient.interceptors.request.use(
   (error) => Promise.reject(error)
 );
 
+// Extend config type to track retry
+interface ExtendedAxiosRequestConfig extends InternalAxiosRequestConfig {
+  _retry?: boolean;
+}
+
 // Response interceptor - handle errors
 apiClient.interceptors.response.use(
   (response) => response,
   async (error: AxiosError) => {
-    const originalRequest = error.config;
+    const originalRequest = error.config as ExtendedAxiosRequestConfig;
 
     // Handle 401 - try refresh token
-    if (error.response?.status === 401 && originalRequest) {
+    if (error.response?.status === 401 && originalRequest && !originalRequest._retry) {
+      // Skip refresh for auth endpoints
+      if (originalRequest.url?.includes('/auth/login') ||
+          originalRequest.url?.includes('/auth/register') ||
+          originalRequest.url?.includes('/auth/refresh')) {
+        return Promise.reject(error);
+      }
+
+      if (isRefreshing) {
+        // Wait for refresh to complete
+        return new Promise((resolve) => {
+          subscribeTokenRefresh((token: string) => {
+            originalRequest.headers.Authorization = `Bearer ${token}`;
+            resolve(apiClient(originalRequest));
+          });
+        });
+      }
+
+      originalRequest._retry = true;
+      isRefreshing = true;
+
       try {
         const token = await storage.getToken();
         if (token) {
@@ -44,12 +82,16 @@ apiClient.interceptors.response.use(
           const newToken = response.data.data?.token || response.data.token;
           if (newToken) {
             await storage.setToken(newToken);
+            isRefreshing = false;
+            onTokenRefreshed(newToken);
             originalRequest.headers.Authorization = `Bearer ${newToken}`;
             return apiClient(originalRequest);
           }
         }
       } catch {
-        // Refresh failed, clear token
+        // Refresh failed, clear token and logout
+        isRefreshing = false;
+        refreshSubscribers = [];
         await storage.removeToken();
         window.dispatchEvent(new CustomEvent('auth:logout'));
       }
