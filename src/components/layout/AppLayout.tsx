@@ -1,4 +1,5 @@
-import { Outlet } from 'react-router-dom';
+import { Outlet, useLocation } from 'react-router-dom';
+import { useEffect } from 'react';
 import { BottomNav } from '@/components/ui/bottom-nav';
 import { useBackButton } from '@/hooks';
 import { cn } from '@/lib/utils';
@@ -10,6 +11,13 @@ interface AppLayoutProps {
 
 export function AppLayout({ showBottomNav = true, className }: AppLayoutProps) {
   useBackButton();
+
+  const { pathname } = useLocation();
+
+  // Scroll to top on route change
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, [pathname]);
 
   return (
     <div className={cn('min-h-screen bg-background', className)}>
