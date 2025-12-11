@@ -1,84 +1,112 @@
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ChevronLeft, Bell, Settings } from 'lucide-react';
-import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 
 interface HeaderProps {
   title?: string;
+  greeting?: {
+    text: string;
+    name: string;
+  };
   showBack?: boolean;
   showNotification?: boolean;
   showSettings?: boolean;
   rightAction?: React.ReactNode;
-  transparent?: boolean;
   className?: string;
 }
 
 export function Header({
   title,
+  greeting,
   showBack = false,
-  showNotification = false,
-  showSettings = false,
+  showNotification = true,
+  showSettings = true,
   rightAction,
-  transparent = false,
   className,
 }: HeaderProps) {
   const navigate = useNavigate();
+  const [isScrolled, setIsScrolled] = useState(false);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      setIsScrolled(window.scrollY > 10);
+    };
+
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
+
+  // Style untuk elemen pill/button berdasarkan scroll
+  const elementStyle = cn(
+    'rounded-full flex items-center justify-center shrink-0 transition-all duration-300',
+    isScrolled
+      ? 'glass'
+      : 'glass-primary text-primary-foreground'
+  );
 
   return (
     <header
       className={cn(
-        'sticky top-0 z-40 safe-top',
-        !transparent && 'glass-strong',
+        'sticky top-0 z-40 safe-top px-4 py-2 transition-colors duration-200',
         className
       )}
     >
-      <div className="flex items-center justify-between h-14 px-4">
-        {/* Left section */}
-        <div className="flex items-center gap-2 min-w-[48px]">
-          {showBack && (
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={() => navigate(-1)}
-              className="h-9 w-9 rounded-full"
-            >
-              <ChevronLeft className="h-5 w-5" />
-            </Button>
-          )}
-        </div>
-
-        {/* Center - Title */}
-        {title && (
-          <h1 className="text-base font-semibold text-center flex-1 truncate px-2">
-            {title}
-          </h1>
+      <div className="flex items-center gap-2">
+        {/* Back button */}
+        {showBack && (
+          <button
+            onClick={() => navigate(-1)}
+            className={cn(elementStyle, 'h-10 w-10')}
+          >
+            <ChevronLeft className="h-5 w-5" />
+          </button>
         )}
 
-        {/* Right section */}
-        <div className="flex items-center gap-1 min-w-[48px] justify-end">
-          {showNotification && (
-            <Button
-              variant="ghost"
-              size="icon"
-              className="h-9 w-9 rounded-full relative"
-            >
-              <Bell className="h-5 w-5" />
-              {/* Notification badge */}
-              <span className="absolute top-1 right-1 h-2 w-2 bg-destructive rounded-full" />
-            </Button>
-          )}
-          {showSettings && (
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={() => navigate('/settings')}
-              className="h-9 w-9 rounded-full"
-            >
-              <Settings className="h-5 w-5" />
-            </Button>
-          )}
-          {rightAction}
-        </div>
+        {/* Pill container - tinggi konsisten */}
+        {(greeting || title) && (
+          <div className={cn(elementStyle, 'flex-1 min-w-0 h-10 px-4')}>
+            {greeting ? (
+              <div className="min-w-0 flex-1">
+                <p className={cn(
+                  'text-[10px] leading-tight transition-colors duration-200',
+                  isScrolled ? 'text-muted-foreground' : 'text-primary-foreground/70'
+                )}>
+                  {greeting.text}
+                </p>
+                <p className="text-xs font-medium truncate">{greeting.name}</p>
+              </div>
+            ) : (
+              <p className="text-sm font-medium truncate flex-1 text-center">{title}</p>
+            )}
+          </div>
+        )}
+
+        {/* Spacer jika tidak ada greeting/title */}
+        {!greeting && !title && <div className="flex-1" />}
+
+        {/* Notification button */}
+        {showNotification && (
+          <button className={cn(elementStyle, 'h-10 w-10 relative')}>
+            <Bell className="h-5 w-5" />
+            <span className={cn(
+              'absolute top-1.5 right-1.5 h-2 w-2 rounded-full',
+              isScrolled ? 'bg-destructive' : 'bg-white'
+            )} />
+          </button>
+        )}
+
+        {/* Settings button */}
+        {showSettings && (
+          <button
+            onClick={() => navigate('/settings')}
+            className={cn(elementStyle, 'h-10 w-10')}
+          >
+            <Settings className="h-5 w-5" />
+          </button>
+        )}
+
+        {rightAction}
       </div>
     </header>
   );

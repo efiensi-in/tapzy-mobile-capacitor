@@ -54,7 +54,7 @@ export default function HomePage() {
   if (isMembersLoading) {
     return (
       <div className="min-h-screen">
-        <Header showNotification showSettings transparent />
+        <Header />
         <HomePageSkeleton />
       </div>
     );
@@ -62,16 +62,9 @@ export default function HomePage() {
 
   return (
     <div className="min-h-screen">
-      {/* Header */}
-      <Header showNotification showSettings transparent />
+      <Header greeting={{ text: getGreeting(), name: user?.name || 'Guardian' }} />
 
-      <div className="px-4 pb-6 -mt-2">
-        {/* Greeting */}
-        <div className="mb-4">
-          <p className="text-muted-foreground text-sm">{getGreeting()},</p>
-          <h1 className="text-xl font-bold">{user?.name || 'Guardian'}</h1>
-        </div>
-
+      <div className="px-4 pb-6">
         {/* Balance Summary */}
         <BalanceSummary
           totalBalance={totalBalance}

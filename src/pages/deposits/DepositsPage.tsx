@@ -37,7 +37,7 @@ export default function DepositsPage() {
 
   return (
     <div className="min-h-screen pb-6">
-      <Header title="Riwayat Top Up" />
+      <Header showBack title="Riwayat Top Up" />
 
       <div className="px-4">
         {isLoading ? (

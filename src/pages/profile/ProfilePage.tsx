@@ -64,7 +64,7 @@ export default function ProfilePage() {
   if (isLoading) {
     return (
       <div className="min-h-screen pb-6">
-        <Header title="Profil" showSettings />
+        <Header showBack title="Profil" />
         <ProfilePageSkeleton />
       </div>
     );
@@ -72,7 +72,7 @@ export default function ProfilePage() {
 
   return (
     <div className="min-h-screen pb-6">
-      <Header title="Profil" showSettings />
+      <Header showBack title="Profil" />
 
       <div className="px-4">
         {/* Profile Card */}
