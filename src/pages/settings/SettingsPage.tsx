@@ -1,5 +1,5 @@
 import { Moon, Sun, Palette, Bell, Globe, Info } from 'lucide-react';
-import { useTheme } from '@/contexts/ThemeContext';
+import { useTheme } from '@/contexts';
 import { Header } from '@/components/layout';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';

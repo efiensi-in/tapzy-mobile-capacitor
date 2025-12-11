@@ -1,7 +1,7 @@
 import { useQuery } from '@tanstack/react-query';
 import { Link } from 'react-router-dom';
 import { Plus, History, ChevronRight, Users, RefreshCw } from 'lucide-react';
-import { useAuth } from '@/contexts/AuthContext';
+import { useAuth } from '@/contexts';
 import { membersApi } from '@/api/members';
 import { walletsApi } from '@/api/wallets';
 import { Header } from '@/components/layout';
