@@ -19,12 +19,12 @@ export function useStatusBar(style: StatusBarStyle = 'light') {
           style: style === 'light' ? Style.Dark : Style.Light,
         });
 
-        // Pastikan overlay aktif
-        await StatusBar.setOverlaysWebView({ overlay: true });
+        // Disable overlay untuk solid background
+        await StatusBar.setOverlaysWebView({ overlay: false });
 
-        // Android: set transparent
+        // Android: set solid black
         if (Capacitor.getPlatform() === 'android') {
-          await StatusBar.setBackgroundColor({ color: '#00000000' });
+          await StatusBar.setBackgroundColor({ color: '#000000' });
         }
       } catch (error) {
         console.warn('StatusBar error:', error);
