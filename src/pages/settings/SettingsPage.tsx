@@ -1,12 +1,20 @@
-import { Moon, Sun, Palette, Bell, Globe, Info } from 'lucide-react';
+import { Moon, Sun, Palette, Bell, Globe, Info, Check } from 'lucide-react';
 import { useTheme } from '@/contexts';
 import { Header } from '@/components/layout';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { cn } from '@/lib/utils';
+import type { ColorTheme } from '@/utils/storage';
+
+const colorOptions: { name: string; value: ColorTheme; color: string }[] = [
+  { name: 'Hijau', value: 'emerald', color: 'bg-emerald-500' },
+  { name: 'Biru', value: 'blue', color: 'bg-blue-500' },
+  { name: 'Ungu', value: 'purple', color: 'bg-purple-500' },
+  { name: 'Oranye', value: 'orange', color: 'bg-orange-500' },
+];
 
 export default function SettingsPage() {
-  const { isDark, toggleTheme } = useTheme();
+  const { isDark, toggleTheme, colorTheme, setColorTheme } = useTheme();
 
   return (
     <div className="min-h-screen pb-6">
@@ -55,30 +63,26 @@ export default function SettingsPage() {
                   </p>
                 </div>
               </div>
-              <div className="flex gap-2">
-                {[
-                  { name: 'Hijau', color: 'bg-emerald-500', active: true },
-                  { name: 'Biru', color: 'bg-blue-500', active: false },
-                  { name: 'Ungu', color: 'bg-purple-500', active: false },
-                  { name: 'Oranye', color: 'bg-orange-500', active: false },
-                ].map((colorOption) => (
+              <div className="flex gap-3">
+                {colorOptions.map((option) => (
                   <button
-                    key={colorOption.name}
+                    key={option.value}
+                    onClick={() => setColorTheme(option.value)}
                     className={cn(
-                      'h-10 w-10 rounded-full transition-all',
-                      colorOption.color,
-                      colorOption.active
-                        ? 'ring-2 ring-offset-2 ring-primary'
-                        : 'opacity-50 hover:opacity-75'
+                      'h-10 w-10 rounded-full transition-all flex items-center justify-center',
+                      option.color,
+                      colorTheme === option.value
+                        ? 'ring-2 ring-offset-2 ring-offset-background ring-foreground scale-110'
+                        : 'opacity-70 hover:opacity-100 hover:scale-105'
                     )}
-                    title={colorOption.name}
-                    disabled={!colorOption.active}
-                  />
+                    title={option.name}
+                  >
+                    {colorTheme === option.value && (
+                      <Check className="h-5 w-5 text-white" />
+                    )}
+                  </button>
                 ))}
               </div>
-              <p className="text-xs text-muted-foreground mt-2">
-                Warna lain akan tersedia segera
-              </p>
             </div>
           </div>
         </div>

@@ -187,6 +187,78 @@
   --glass-border: oklch(1 0 0 / 10%);
 }
 
+/* Color Theme: Blue */
+.theme-blue {
+  --primary: oklch(0.588 0.158 241.966);
+  --ring: oklch(0.588 0.158 241.966);
+  --accent: oklch(0.93 0.052 241.966);
+  --chart-1: oklch(0.588 0.158 241.966);
+}
+.theme-blue.dark, .dark.theme-blue {
+  --primary: oklch(0.688 0.158 241.966);
+  --ring: oklch(0.688 0.158 241.966);
+  --accent: oklch(0.35 0.1 241.966);
+  --chart-1: oklch(0.688 0.158 241.966);
+}
+
+/* Color Theme: Purple */
+.theme-purple {
+  --primary: oklch(0.558 0.188 293.745);
+  --ring: oklch(0.558 0.188 293.745);
+  --accent: oklch(0.93 0.052 293.745);
+  --chart-1: oklch(0.558 0.188 293.745);
+}
+.theme-purple.dark, .dark.theme-purple {
+  --primary: oklch(0.688 0.188 293.745);
+  --ring: oklch(0.688 0.188 293.745);
+  --accent: oklch(0.35 0.1 293.745);
+  --chart-1: oklch(0.688 0.188 293.745);
+}
+
+/* Color Theme: Orange */
+.theme-orange {
+  --primary: oklch(0.646 0.222 41.116);
+  --ring: oklch(0.646 0.222 41.116);
+  --accent: oklch(0.93 0.052 41.116);
+  --chart-1: oklch(0.646 0.222 41.116);
+}
+.theme-orange.dark, .dark.theme-orange {
+  --primary: oklch(0.746 0.222 41.116);
+  --ring: oklch(0.746 0.222 41.116);
+  --accent: oklch(0.35 0.1 41.116);
+  --chart-1: oklch(0.746 0.222 41.116);
+}
+
+/* Color Theme: Emerald (default - no extra styles needed) */
+.theme-emerald {
+  /* Uses default emerald colors from :root and .dark */
+}
+
+/* Primary gradient card backgrounds */
+:root {
+  --primary-gradient: linear-gradient(to bottom right, oklch(0.596 0.145 163.225), oklch(0.508 0.145 163.225), oklch(0.448 0.13 175));
+  --primary-shadow: rgba(16, 185, 129, 0.5);
+  --primary-border: oklch(0.508 0.145 163.225);
+}
+
+.theme-blue {
+  --primary-gradient: linear-gradient(to bottom right, oklch(0.588 0.158 241.966), oklch(0.508 0.158 241.966), oklch(0.448 0.14 250));
+  --primary-shadow: rgba(59, 130, 246, 0.5);
+  --primary-border: oklch(0.508 0.158 241.966);
+}
+
+.theme-purple {
+  --primary-gradient: linear-gradient(to bottom right, oklch(0.558 0.188 293.745), oklch(0.478 0.188 293.745), oklch(0.418 0.16 300));
+  --primary-shadow: rgba(147, 51, 234, 0.5);
+  --primary-border: oklch(0.478 0.188 293.745);
+}
+
+.theme-orange {
+  --primary-gradient: linear-gradient(to bottom right, oklch(0.646 0.222 41.116), oklch(0.566 0.222 41.116), oklch(0.506 0.2 35));
+  --primary-shadow: rgba(249, 115, 22, 0.5);
+  --primary-border: oklch(0.566 0.222 41.116);
+}
+
 @layer base {
   * {
     @apply border-border outline-ring/50;

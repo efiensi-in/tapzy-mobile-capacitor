@@ -4,7 +4,10 @@ const KEYS = {
   TOKEN: 'auth_token',
   USER: 'auth_user',
   THEME: 'app_theme',
+  COLOR_THEME: 'app_color_theme',
 } as const;
+
+export type ColorTheme = 'emerald' | 'blue' | 'purple' | 'orange';
 
 export const storage = {
   // Token management
@@ -43,6 +46,16 @@ export const storage = {
 
   async setTheme(theme: 'light' | 'dark'): Promise<void> {
     await Preferences.set({ key: KEYS.THEME, value: theme });
+  },
+
+  // Color theme management
+  async getColorTheme(): Promise<ColorTheme | null> {
+    const { value } = await Preferences.get({ key: KEYS.COLOR_THEME });
+    return value as ColorTheme | null;
+  },
+
+  async setColorTheme(colorTheme: ColorTheme): Promise<void> {
+    await Preferences.set({ key: KEYS.COLOR_THEME, value: colorTheme });
   },
 
   // Clear all
