@@ -8,6 +8,7 @@ interface TransactionItemProps {
   showMember?: boolean;
   memberName?: string;
   className?: string;
+  onClick?: () => void;
 }
 
 export function TransactionItem({
@@ -15,6 +16,7 @@ export function TransactionItem({
   showMember = false,
   memberName,
   className,
+  onClick,
 }: TransactionItemProps) {
   const typeConfig: Record<string, { icon: typeof ShoppingBag; label: string; color: string; bgColor: string; prefix: string }> = {
     purchase: {
@@ -121,8 +123,13 @@ export function TransactionItem({
     <div
       className={cn(
         'flex items-center gap-3 py-3',
+        onClick && 'cursor-pointer hover:bg-accent/50 active:bg-accent transition-colors',
         className
       )}
+      onClick={onClick}
+      role={onClick ? 'button' : undefined}
+      tabIndex={onClick ? 0 : undefined}
+      onKeyDown={onClick ? (e) => e.key === 'Enter' && onClick() : undefined}
     >
       {/* Icon */}
       <div className={cn('h-10 w-10 rounded-full flex items-center justify-center', type.bgColor)}>

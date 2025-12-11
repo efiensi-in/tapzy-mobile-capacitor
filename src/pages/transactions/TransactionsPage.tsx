@@ -7,13 +7,15 @@ import { Header } from '@/components/layout';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
 import { EmptyState } from '@/components/ui/empty-state';
-import { TransactionItem } from '@/components/features';
+import { TransactionItem, TransactionDetailSheet } from '@/components/features';
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
 import { cn } from '@/lib/utils';
+import type { Transaction } from '@/types/api';
 
 export default function TransactionsPage() {
   const { memberId } = useParams<{ memberId: string }>();
   const [filterWalletId, setFilterWalletId] = useState<string>('');
+  const [selectedTransaction, setSelectedTransaction] = useState<Transaction | null>(null);
 
   // Fetch transactions with infinite scroll
   const {
@@ -115,6 +117,7 @@ export default function TransactionsPage() {
                   key={transaction.id}
                   transaction={transaction}
                   className="px-4"
+                  onClick={() => setSelectedTransaction(transaction)}
                 />
               ))}
             </div>
@@ -141,6 +144,13 @@ export default function TransactionsPage() {
           </>
         )}
       </div>
+
+      {/* Transaction Detail Sheet */}
+      <TransactionDetailSheet
+        transaction={selectedTransaction}
+        open={!!selectedTransaction}
+        onOpenChange={(open) => !open && setSelectedTransaction(null)}
+      />
     </div>
   );
 }

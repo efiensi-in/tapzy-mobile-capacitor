@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { Plus, History, Settings2, Calendar, School } from 'lucide-react';
@@ -8,11 +9,13 @@ import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
-import { WalletCard, TransactionItem } from '@/components/features';
+import { WalletCard, TransactionItem, TransactionDetailSheet } from '@/components/features';
 import { formatDate } from '@/utils/format';
+import type { Transaction } from '@/types/api';
 
 export default function MemberDetailPage() {
   const { memberId } = useParams<{ memberId: string }>();
+  const [selectedTransaction, setSelectedTransaction] = useState<Transaction | null>(null);
 
   // Fetch member detail
   const { data: memberData, isLoading: isMemberLoading } = useQuery({
@@ -200,12 +203,20 @@ export default function MemberDetailPage() {
                   key={transaction.id}
                   transaction={transaction}
                   className="px-4"
+                  onClick={() => setSelectedTransaction(transaction)}
                 />
               ))}
             </div>
           )}
         </div>
       </div>
+
+      {/* Transaction Detail Sheet */}
+      <TransactionDetailSheet
+        transaction={selectedTransaction}
+        open={!!selectedTransaction}
+        onOpenChange={(open) => !open && setSelectedTransaction(null)}
+      />
     </div>
   );
 }
