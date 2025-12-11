@@ -1,5 +1,6 @@
 import { Outlet } from 'react-router-dom';
 import { BottomNav } from '@/components/ui/bottom-nav';
+import { useBackButton } from '@/hooks';
 import { cn } from '@/lib/utils';
 
 interface AppLayoutProps {
@@ -8,6 +9,8 @@ interface AppLayoutProps {
 }
 
 export function AppLayout({ showBottomNav = true, className }: AppLayoutProps) {
+  useBackButton();
+
   return (
     <div className={cn('min-h-screen bg-background', className)}>
       {/* Main content area */}

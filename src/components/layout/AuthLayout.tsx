@@ -1,4 +1,5 @@
 import { Outlet } from 'react-router-dom';
+import { useBackButton } from '@/hooks';
 import { cn } from '@/lib/utils';
 
 interface AuthLayoutProps {
@@ -6,6 +7,8 @@ interface AuthLayoutProps {
 }
 
 export function AuthLayout({ className }: AuthLayoutProps) {
+  useBackButton();
+
   return (
     <div
       className={cn(
