@@ -8,7 +8,7 @@ import { Header } from '@/components/layout';
 import { Button } from '@/components/ui/button';
 import { EmptyState } from '@/components/ui/empty-state';
 import { BalanceSummary, MemberCard, TransactionItem } from '@/components/features';
-import { HomePageSkeleton, MemberCardSkeleton, TransactionItemSkeleton } from '@/components/skeletons';
+import { HomePageSkeleton, TransactionItemSkeleton } from '@/components/skeletons';
 import type { Transaction } from '@/types/api';
 
 export default function HomePage() {
