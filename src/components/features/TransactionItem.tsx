@@ -87,10 +87,35 @@ export function TransactionItem({
     },
   };
 
-  const type = typeConfig[transaction.transaction_type] || defaultType;
+  const type = transaction.transaction_type
+    ? (typeConfig[transaction.transaction_type] || defaultType)
+    : defaultType;
   const status = statusConfig[transaction.status] || statusConfig.completed;
   const Icon = type.icon;
   const StatusIcon = status.icon;
+
+  // Calculate display amount: prefer amount/total, fallback to sum of items subtotals
+  const getDisplayAmount = (): string => {
+    // Try amount first
+    if (transaction.amount && transaction.amount !== '') {
+      return transaction.amount;
+    }
+    // Try total
+    if (transaction.total && transaction.total !== '') {
+      return transaction.total;
+    }
+    // Calculate from items subtotals
+    if (transaction.items && transaction.items.length > 0) {
+      const sum = transaction.items.reduce((acc, item) => {
+        const subtotal = parseFloat(item.subtotal) || 0;
+        return acc + subtotal;
+      }, 0);
+      return sum.toString();
+    }
+    return '0';
+  };
+
+  const displayAmount = getDisplayAmount();
 
   return (
     <div
@@ -128,7 +153,7 @@ export function TransactionItem({
       {/* Amount */}
       <div className="text-right">
         <p className={cn('text-sm font-semibold', type.color)}>
-          {type.prefix}{formatCurrency(transaction.amount)}
+          {type.prefix}{formatCurrency(displayAmount)}
         </p>
         <p className="text-xs text-muted-foreground">
           {transaction.wallet?.wallet_type_label || 'Wallet'}

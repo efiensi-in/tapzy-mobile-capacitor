@@ -197,22 +197,33 @@ export interface TopupResponse {
 
 // Transaction Types
 export interface TransactionItem {
-  product: { id: string; name: string };
+  id: string;
+  product: { id: string; name: string; sku?: string };
   quantity: number;
   unit_price: string;
+  subtotal: string;
+  discount: string;
   total: string;
 }
 
 export interface Transaction {
   id: string;
   transaction_code: string;
-  transaction_type: 'purchase' | 'topup' | 'transfer';
+  transaction_type: 'purchase' | 'topup' | 'transfer' | 'payment' | 'deposit' | null;
+  transaction_type_label?: string;
   amount: string;
+  subtotal?: string;
+  discount?: string;
+  tax?: string;
+  total?: string;
   status: 'completed' | 'pending' | 'failed';
+  status_label?: string;
+  notes?: string | null;
   wallet: Pick<Wallet, 'id' | 'wallet_type' | 'wallet_type_label'>;
   tenant?: { id: string; name: string };
   items?: TransactionItem[];
   created_at: string;
+  updated_at?: string;
 }
 
 export interface TransactionsResponse {
