@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom';
-import { ChevronRight, Snowflake } from 'lucide-react';
+import { ChevronRight, Snowflake, Wallet, PiggyBank, Utensils, Bus, Coins, type LucideIcon } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { formatCurrency } from '@/utils/format';
 import type { Wallet as WalletType } from '@/types/api';
@@ -12,13 +12,15 @@ interface WalletCardProps {
   className?: string;
 }
 
+const walletIcons: Record<string, LucideIcon> = {
+  main: Wallet,
+  savings: PiggyBank,
+  meal_allowance: Utensils,
+  transport: Bus,
+};
+
 export function WalletCard({ wallet, memberId, compact = false, className }: WalletCardProps) {
-  const walletIcons: Record<string, string> = {
-    main: '💳',
-    savings: '🏦',
-    meal_allowance: '🍽️',
-    transport: '🚌',
-  };
+  const IconComponent = walletIcons[wallet.wallet_type] || Coins;
 
   return (
     <Link
@@ -33,13 +35,11 @@ export function WalletCard({ wallet, memberId, compact = false, className }: Wal
       {/* Icon */}
       <div
         className={cn(
-          'flex items-center justify-center rounded-lg bg-primary/10',
+          'flex items-center justify-center rounded-lg bg-primary/10 text-primary',
           compact ? 'h-10 w-10' : 'h-12 w-12'
         )}
       >
-        <span className={compact ? 'text-lg' : 'text-xl'}>
-          {walletIcons[wallet.wallet_type] || '💰'}
-        </span>
+        <IconComponent className={compact ? 'h-5 w-5' : 'h-6 w-6'} />
       </div>
 
       {/* Info */}
