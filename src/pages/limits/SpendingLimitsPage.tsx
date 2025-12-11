@@ -221,7 +221,7 @@ export default function SpendingLimitsPage() {
         showBack
         title={member ? `Batas ${member.name}` : 'Batas Pengeluaran'}
         rightAction={
-          <Button size="sm" className="h-8" onClick={openCreateDialog}>
+          <Button size="sm" className="h-10 rounded-full" onClick={openCreateDialog}>
             <Plus className="h-4 w-4 mr-1" />
             Tambah
           </Button>
