@@ -26,6 +26,16 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog';
 import { formatCurrency, formatNumber } from '@/utils/format';
 import { cn } from '@/lib/utils';
 import type { SpendingLimit, CreateSpendingLimitRequest, UpdateSpendingLimitRequest } from '@/types/api';
@@ -43,6 +53,13 @@ export default function SpendingLimitsPage() {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingLimit, setEditingLimit] = useState<SpendingLimit | null>(null);
   const [error, setError] = useState('');
+
+  // Confirm dialogs
+  const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
+  const [toggleConfirmOpen, setToggleConfirmOpen] = useState(false);
+  const [saveConfirmOpen, setSaveConfirmOpen] = useState(false);
+  const [selectedLimit, setSelectedLimit] = useState<SpendingLimit | null>(null);
+  const [pendingFormData, setPendingFormData] = useState<CreateSpendingLimitRequest | UpdateSpendingLimitRequest | null>(null);
 
   // Form state
   const [selectedWalletId, setSelectedWalletId] = useState('');
@@ -183,21 +200,47 @@ export default function SpendingLimitsPage() {
       is_active: isActive,
     };
 
+    // Show confirmation dialog
+    setPendingFormData(data);
+    setSaveConfirmOpen(true);
+  };
+
+  const handleSaveConfirm = () => {
+    if (!pendingFormData) return;
+
     if (editingLimit) {
-      updateMutation.mutate({ limitId: editingLimit.id, data });
+      updateMutation.mutate({ limitId: editingLimit.id, data: pendingFormData });
     } else {
-      createMutation.mutate({ ...data, wallet_id: selectedWalletId } as CreateSpendingLimitRequest);
+      createMutation.mutate({ ...pendingFormData, wallet_id: selectedWalletId } as CreateSpendingLimitRequest);
     }
+    setSaveConfirmOpen(false);
+    setPendingFormData(null);
   };
 
-  const handleDelete = (limitId: string) => {
-    if (confirm('Hapus batas pengeluaran ini?')) {
-      deleteMutation.mutate(limitId);
-    }
+  const openDeleteConfirm = (limit: SpendingLimit) => {
+    setSelectedLimit(limit);
+    setDeleteConfirmOpen(true);
   };
 
-  const handleToggle = (limit: SpendingLimit) => {
-    toggleMutation.mutate({ limitId: limit.id, isActive: !limit.is_active });
+  const handleDeleteConfirm = () => {
+    if (selectedLimit) {
+      deleteMutation.mutate(selectedLimit.id);
+    }
+    setDeleteConfirmOpen(false);
+    setSelectedLimit(null);
+  };
+
+  const openToggleConfirm = (limit: SpendingLimit) => {
+    setSelectedLimit(limit);
+    setToggleConfirmOpen(true);
+  };
+
+  const handleToggleConfirm = () => {
+    if (selectedLimit) {
+      toggleMutation.mutate({ limitId: selectedLimit.id, isActive: !selectedLimit.is_active });
+    }
+    setToggleConfirmOpen(false);
+    setSelectedLimit(null);
   };
 
   // Group limits by wallet
@@ -283,7 +326,7 @@ export default function SpendingLimitsPage() {
                             variant="ghost"
                             size="icon"
                             className="h-8 w-8"
-                            onClick={() => handleToggle(limit)}
+                            onClick={() => openToggleConfirm(limit)}
                             disabled={toggleMutation.isPending}
                           >
                             {limit.is_active ? (
@@ -304,7 +347,7 @@ export default function SpendingLimitsPage() {
                             variant="ghost"
                             size="icon"
                             className="h-8 w-8 text-destructive hover:text-destructive hover:bg-destructive/10"
-                            onClick={() => handleDelete(limit.id)}
+                            onClick={() => openDeleteConfirm(limit)}
                             disabled={deleteMutation.isPending}
                           >
                             <Trash2 className="h-4 w-4" />
@@ -524,6 +567,79 @@ export default function SpendingLimitsPage() {
           </form>
         </DialogContent>
       </Dialog>
+
+      {/* Delete Confirmation Dialog */}
+      <AlertDialog open={deleteConfirmOpen} onOpenChange={setDeleteConfirmOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Hapus Batas Pengeluaran?</AlertDialogTitle>
+            <AlertDialogDescription>
+              Apakah Anda yakin ingin menghapus batas "{selectedLimit?.limit_name || 'Batas Pengeluaran'}"?
+              Tindakan ini tidak dapat dibatalkan.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Batal</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={handleDeleteConfirm}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            >
+              Hapus
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      {/* Toggle Confirmation Dialog */}
+      <AlertDialog open={toggleConfirmOpen} onOpenChange={setToggleConfirmOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>
+              {selectedLimit?.is_active ? 'Nonaktifkan' : 'Aktifkan'} Batas?
+            </AlertDialogTitle>
+            <AlertDialogDescription>
+              {selectedLimit?.is_active
+                ? `Batas "${selectedLimit?.limit_name || 'Batas Pengeluaran'}" akan dinonaktifkan. Anak Anda tidak akan dibatasi oleh aturan ini.`
+                : `Batas "${selectedLimit?.limit_name || 'Batas Pengeluaran'}" akan diaktifkan. Anak Anda akan dibatasi sesuai aturan ini.`}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Batal</AlertDialogCancel>
+            <AlertDialogAction onClick={handleToggleConfirm}>
+              {selectedLimit?.is_active ? 'Nonaktifkan' : 'Aktifkan'}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      {/* Save Confirmation Dialog */}
+      <AlertDialog open={saveConfirmOpen} onOpenChange={setSaveConfirmOpen}>
+        <AlertDialogContent className="rounded-2xl">
+          <AlertDialogHeader>
+            <AlertDialogTitle>
+              {editingLimit ? 'Simpan Perubahan?' : 'Tambah Batas Pengeluaran?'}
+            </AlertDialogTitle>
+            <AlertDialogDescription>
+              {editingLimit
+                ? `Perubahan pada batas "${pendingFormData?.limit_name || 'Batas Pengeluaran'}" akan disimpan.`
+                : `Batas pengeluaran baru akan ditambahkan dengan limit harian ${pendingFormData?.daily_limit ? formatCurrency(pendingFormData.daily_limit) : '-'} dan limit per transaksi ${pendingFormData?.per_transaction_limit ? formatCurrency(pendingFormData.per_transaction_limit) : '-'}.`}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter className="flex-row gap-2">
+            <AlertDialogCancel className="flex-1 mt-0">Batal</AlertDialogCancel>
+            <AlertDialogAction onClick={handleSaveConfirm} className="flex-1">
+              {isPending ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  Menyimpan...
+                </>
+              ) : (
+                'Ya, Simpan'
+              )}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }

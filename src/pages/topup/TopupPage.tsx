@@ -11,6 +11,20 @@ import { Label } from '@/components/ui/label';
 import { GlassCard, GlassCardContent, GlassCardHeader, GlassCardTitle } from '@/components/ui/glass-card';
 import { TopupPageSkeleton } from '@/components/skeletons';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog';
+import {
+  Dialog,
+  DialogContent,
+} from '@/components/ui/dialog';
 import { formatCurrency, formatNumber } from '@/utils/format';
 import { cn } from '@/lib/utils';
 
@@ -26,8 +40,11 @@ export default function TopupPage() {
   const [showPassword, setShowPassword] = useState(false);
   const [notes, setNotes] = useState('');
   const [error, setError] = useState('');
-  const [success, setSuccess] = useState(false);
   const [showMemberSelector, setShowMemberSelector] = useState(false);
+
+  // Dialog states
+  const [confirmDialogOpen, setConfirmDialogOpen] = useState(false);
+  const [successDialogOpen, setSuccessDialogOpen] = useState(false);
 
   // Fetch all members (includes wallets and permissions)
   const { data: membersData, isLoading: isMembersLoading } = useQuery({
@@ -64,12 +81,14 @@ export default function TopupPage() {
     mutationFn: (data: { amount: number; password: string; notes?: string }) =>
       walletsApi.topup(memberId!, effectiveWalletId, data),
     onSuccess: () => {
-      setSuccess(true);
+      setConfirmDialogOpen(false);
+      setSuccessDialogOpen(true);
       queryClient.invalidateQueries({ queryKey: ['wallets', memberId] });
       queryClient.invalidateQueries({ queryKey: ['members'] });
       queryClient.invalidateQueries({ queryKey: ['deposits'] });
     },
     onError: (err: unknown) => {
+      setConfirmDialogOpen(false);
       const error = err as { response?: { data?: { message?: string } } };
       setError(error.response?.data?.message || 'Top up gagal. Silakan coba lagi.');
     },
@@ -102,6 +121,12 @@ export default function TopupPage() {
       return;
     }
 
+    // Open confirmation dialog
+    setConfirmDialogOpen(true);
+  };
+
+  const handleConfirmTopup = () => {
+    const numAmount = parseInt(amount, 10);
     topupMutation.mutate({
       amount: numAmount,
       password,
@@ -109,37 +134,12 @@ export default function TopupPage() {
     });
   };
 
-  const selectedWallet = wallets.find((w) => w.id === effectiveWalletId);
+  const handleSuccessClose = () => {
+    setSuccessDialogOpen(false);
+    navigate('/home');
+  };
 
-  if (success) {
-    return (
-      <div className="min-h-screen flex flex-col">
-        <Header showBack title="Top Up" />
-        <div className="flex-1 flex flex-col items-center justify-center px-4">
-          <div className="text-center">
-            <div className="h-20 w-20 rounded-full bg-success/10 flex items-center justify-center mx-auto mb-4">
-              <CheckCircle2 className="h-10 w-10 text-success" />
-            </div>
-            <h2 className="text-xl font-bold mb-2">Top Up Berhasil!</h2>
-            <p className="text-muted-foreground mb-2">
-              {formatCurrency(parseInt(amount, 10))} telah ditambahkan ke dompet {member?.name}
-            </p>
-            <p className="text-sm text-muted-foreground mb-6">
-              Saldo baru: {formatCurrency(Number(selectedWallet?.balance || 0) + parseInt(amount, 10))}
-            </p>
-            <div className="flex gap-3">
-              <Button variant="outline" onClick={() => navigate(-1)}>
-                Kembali
-              </Button>
-              <Button onClick={() => navigate('/home')}>
-                Ke Beranda
-              </Button>
-            </div>
-          </div>
-        </div>
-      </div>
-    );
-  }
+  const selectedWallet = wallets.find((w) => w.id === effectiveWalletId);
 
   if (isMembersLoading) {
     return (
@@ -337,19 +337,85 @@ export default function TopupPage() {
                 className="w-full h-12"
                 disabled={!amount || !password || topupMutation.isPending}
               >
-                {topupMutation.isPending ? (
-                  <>
-                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                    Memproses...
-                  </>
-                ) : (
-                  `Top Up ${amount ? formatCurrency(parseInt(amount, 10)) : ''}`
-                )}
+                {`Top Up ${amount ? formatCurrency(parseInt(amount, 10)) : ''}`}
               </Button>
             </form>
           </GlassCardContent>
         </GlassCard>
       </div>
+
+      {/* Confirmation Dialog */}
+      <AlertDialog open={confirmDialogOpen} onOpenChange={setConfirmDialogOpen}>
+        <AlertDialogContent className="rounded-2xl">
+          <AlertDialogHeader>
+            <AlertDialogTitle>Konfirmasi Top Up</AlertDialogTitle>
+            <AlertDialogDescription className="space-y-2">
+              <p>Anda akan melakukan top up:</p>
+              <div className="bg-accent/50 rounded-lg p-3 my-3">
+                <p className="text-2xl font-bold text-foreground text-center">
+                  {formatCurrency(parseInt(amount || '0', 10))}
+                </p>
+                <p className="text-sm text-center text-muted-foreground mt-1">
+                  ke dompet {selectedWallet?.wallet_type_label} milik {member?.name}
+                </p>
+              </div>
+              <p className="text-sm">Lanjutkan top up?</p>
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter className="flex-row gap-2">
+            <AlertDialogCancel className="flex-1 mt-0">Batal</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={handleConfirmTopup}
+              disabled={topupMutation.isPending}
+              className="flex-1"
+            >
+              {topupMutation.isPending ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  Memproses...
+                </>
+              ) : (
+                'Ya, Top Up'
+              )}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      {/* Success Dialog */}
+      <Dialog open={successDialogOpen} onOpenChange={setSuccessDialogOpen}>
+        <DialogContent className="rounded-2xl max-w-[calc(100%-2rem)]">
+          <div className="text-center py-4">
+            <div className="h-16 w-16 rounded-full bg-success/10 flex items-center justify-center mx-auto mb-4">
+              <CheckCircle2 className="h-8 w-8 text-success" />
+            </div>
+            <h2 className="text-xl font-bold mb-2">Top Up Berhasil!</h2>
+            <p className="text-muted-foreground mb-1">
+              {formatCurrency(parseInt(amount || '0', 10))} telah ditambahkan
+            </p>
+            <p className="text-sm text-muted-foreground mb-6">
+              ke dompet {selectedWallet?.wallet_type_label} milik {member?.name}
+            </p>
+            <div className="flex gap-3">
+              <Button
+                variant="outline"
+                className="flex-1"
+                onClick={() => {
+                  setSuccessDialogOpen(false);
+                  setAmount('');
+                  setPassword('');
+                  setNotes('');
+                }}
+              >
+                Top Up Lagi
+              </Button>
+              <Button className="flex-1" onClick={handleSuccessClose}>
+                Ke Beranda
+              </Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

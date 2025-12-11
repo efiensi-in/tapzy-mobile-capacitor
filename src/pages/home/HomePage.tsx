@@ -2,11 +2,13 @@ import { useQuery } from '@tanstack/react-query';
 import { Link } from 'react-router-dom';
 import { Plus, History, ChevronRight, Users, RefreshCw } from 'lucide-react';
 import { useAuth } from '@/contexts';
+import { usePullToRefresh } from '@/hooks';
 import { membersApi } from '@/api/members';
 import { walletsApi } from '@/api/wallets';
 import { Header } from '@/components/layout';
 import { Button } from '@/components/ui/button';
 import { EmptyState } from '@/components/ui/empty-state';
+import { PullToRefreshIndicator } from '@/components/ui/pull-to-refresh';
 import { BalanceSummary, MemberCard, TransactionItem } from '@/components/features';
 import { HomePageSkeleton, TransactionItemSkeleton } from '@/components/skeletons';
 import type { Transaction } from '@/types/api';
@@ -25,9 +27,19 @@ export default function HomePage() {
   });
 
   // Fetch recent deposits
-  const { data: depositsData, isLoading: isDepositsLoading } = useQuery({
+  const { data: depositsData, isLoading: isDepositsLoading, refetch: refetchDeposits } = useQuery({
     queryKey: ['deposits', { per_page: 5 }],
     queryFn: () => walletsApi.getDeposits({ per_page: 5 }),
+  });
+
+  // Pull to refresh
+  const { isRefreshing, pullDistance } = usePullToRefresh({
+    onRefresh: async () => {
+      await Promise.all([
+        refetchMembers(),
+        refetchDeposits(),
+      ]);
+    },
   });
 
   const members = membersData?.data?.members || [];
@@ -62,6 +74,7 @@ export default function HomePage() {
 
   return (
     <div className="min-h-screen">
+      <PullToRefreshIndicator pullDistance={pullDistance} isRefreshing={isRefreshing} />
       <Header greeting={{ text: getGreeting(), name: user?.name || 'Guardian' }} />
 
       <div className="px-4 pb-6">
