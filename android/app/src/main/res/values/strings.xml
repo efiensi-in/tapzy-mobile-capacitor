@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">Tapzy Guardian</string>
+    <string name="title_activity_main">Tapzy Guardian</string>
+    <string name="package_name">id.tapzy.guardian</string>
+    <string name="custom_url_scheme">id.tapzy.guardian</string>
+</resources>
