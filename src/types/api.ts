@@ -29,10 +29,13 @@ export interface User {
 export interface Guardian {
   id: string;
   nik: string | null;
-  phone: string;
+  phone: string | null;
   is_verified: boolean;
-  approved_members_count: number;
-  pending_claims_count: number;
+  phone_verified_at: string | null;
+  approved_members_count?: number;
+  pending_claims_count?: number;
+  created_at: string;
+  updated_at: string;
 }
 
 export interface LoginRequest {

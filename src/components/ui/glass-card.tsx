@@ -28,7 +28,7 @@ const GlassCard = React.forwardRef<HTMLDivElement, GlassCardProps>(
 );
 GlassCard.displayName = 'GlassCard';
 
-interface GlassCardHeaderProps extends React.HTMLAttributes<HTMLDivElement> {}
+type GlassCardHeaderProps = React.HTMLAttributes<HTMLDivElement>;
 
 const GlassCardHeader = React.forwardRef<HTMLDivElement, GlassCardHeaderProps>(
   ({ className, ...props }, ref) => (
@@ -41,7 +41,7 @@ const GlassCardHeader = React.forwardRef<HTMLDivElement, GlassCardHeaderProps>(
 );
 GlassCardHeader.displayName = 'GlassCardHeader';
 
-interface GlassCardTitleProps extends React.HTMLAttributes<HTMLHeadingElement> {}
+type GlassCardTitleProps = React.HTMLAttributes<HTMLHeadingElement>;
 
 const GlassCardTitle = React.forwardRef<HTMLHeadingElement, GlassCardTitleProps>(
   ({ className, ...props }, ref) => (
@@ -54,7 +54,7 @@ const GlassCardTitle = React.forwardRef<HTMLHeadingElement, GlassCardTitleProps>
 );
 GlassCardTitle.displayName = 'GlassCardTitle';
 
-interface GlassCardContentProps extends React.HTMLAttributes<HTMLDivElement> {}
+type GlassCardContentProps = React.HTMLAttributes<HTMLDivElement>;
 
 const GlassCardContent = React.forwardRef<HTMLDivElement, GlassCardContentProps>(
   ({ className, ...props }, ref) => (
