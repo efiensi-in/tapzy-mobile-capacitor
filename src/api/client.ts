@@ -2,13 +2,17 @@ import axios, { type AxiosError, type InternalAxiosRequestConfig } from 'axios';
 import { Capacitor } from '@capacitor/core';
 import { storage } from '../utils/storage';
 
-// Use relative URL for web/dev (proxy handles it), full URL for native apps
+// Use relative URL for web dev (proxy handles it), full URL for native apps & production
 const getBaseURL = () => {
   if (Capacitor.isNativePlatform()) {
     // For Android/iOS, use environment variable or default
     return import.meta.env.VITE_API_URL || 'http://localhost:8001/api/v1';
   }
-  // For web, use relative URL (Vite proxy will handle it)
+  // For web production, use environment variable
+  if (import.meta.env.PROD && import.meta.env.VITE_API_URL) {
+    return import.meta.env.VITE_API_URL;
+  }
+  // For web dev, use relative URL (Vite proxy will handle it)
   return '/api/v1';
 };
 
