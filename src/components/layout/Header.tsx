@@ -37,12 +37,12 @@ export function Header({
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
-  // Style untuk elemen pill/button berdasarkan scroll
+  // Style untuk elemen pill/button - Liquid Glass Apple style
+  // Light mode: dark text, Dark mode: white text
   const elementStyle = cn(
     'rounded-full flex items-center justify-center shrink-0 transition-all duration-300',
-    isScrolled
-      ? 'glass'
-      : 'glass-primary text-primary-foreground'
+    'text-foreground dark:text-white',
+    isScrolled ? 'liquid-glass' : 'liquid-glass-primary'
   );
 
   return (
@@ -67,14 +67,9 @@ export function Header({
         {(greeting || title) && (
           <div className={cn(elementStyle, 'flex-1 min-w-0 h-10 px-4')}>
             {greeting ? (
-              <div className="min-w-0 flex-1">
-                <p className={cn(
-                  'text-[10px] leading-tight transition-colors duration-200',
-                  isScrolled ? 'text-muted-foreground' : 'text-primary-foreground/70'
-                )}>
-                  {greeting.text}
-                </p>
-                <p className="text-xs font-medium truncate">{greeting.name}</p>
+              <div className="min-w-0 flex-1 flex items-center gap-1.5">
+                <span className="text-xs opacity-60">{greeting.text},</span>
+                <span className="text-xs font-semibold truncate">{greeting.name}</span>
               </div>
             ) : (
               <p className="text-sm font-medium truncate flex-1 text-center">{title}</p>
@@ -89,10 +84,7 @@ export function Header({
         {showNotification && (
           <button className={cn(elementStyle, 'h-10 w-10 relative')}>
             <Bell className="h-5 w-5" />
-            <span className={cn(
-              'absolute top-1.5 right-1.5 h-2 w-2 rounded-full',
-              isScrolled ? 'bg-destructive' : 'bg-white'
-            )} />
+            <span className="absolute top-1.5 right-1.5 h-2 w-2 rounded-full bg-destructive" />
           </button>
         )}
 

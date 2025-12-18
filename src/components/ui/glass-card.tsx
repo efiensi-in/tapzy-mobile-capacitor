@@ -8,9 +8,9 @@ interface GlassCardProps extends React.HTMLAttributes<HTMLDivElement> {
 const GlassCard = React.forwardRef<HTMLDivElement, GlassCardProps>(
   ({ className, variant = 'default', ...props }, ref) => {
     const variants = {
-      default: 'glass-card',
-      strong: 'glass-strong rounded-xl',
-      subtle: 'glass rounded-xl',
+      default: 'liquid-glass rounded-xl',
+      strong: 'liquid-glass rounded-xl',
+      subtle: 'liquid-glass-subtle rounded-xl',
     };
 
     return (
